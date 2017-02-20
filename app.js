@@ -1,7 +1,9 @@
 var express = require("express"),
     app = express(),
     mongoose = require("mongoose"),
-    bodyParser = require("body-parser");
+    bodyParser = require("body-parser"),
+    methodOverride = require("method-override"),
+    expressSanitizer = require("express-sanitizer");
 
 //app config
 mongoose.connect("mongodb://localhost/restful_blog");
@@ -10,6 +12,8 @@ app.use(express.static("public"));
 app.use(bodyParser.urlencoded({
     extended: true
 }));
+app.use(methodOverride("_method"));
+app.use(expressSanitizer());
 
 //schema & model config
 var blogSchema = new mongoose.Schema({
@@ -61,16 +65,44 @@ app.get("/blogs/:id", function (req, res) {
         if (err) {
             console.log(err);
         } else {
-            res.render("show", {blog: blog});
+            res.render("show", {
+                blog: blog
+            });
         }
     });
 });
 
-app.get("/blogs/:id/edit", function (req, res) {});
+app.get("/blogs/:id/edit", function (req, res) {
+    Blog.findById(req.params.id, function (err, blog) {
+        if (err) {
+            console.log(err);
+        } else {
+            res.render("edit", {
+                blog: blog
+            });
+        }
+    });
+});
 
-app.put("/blogs/:id", function (req, res) {});
+app.put("/blogs/:id", function (req, res) {
+    Blog.findByIdAndUpdate(req.params.id, req.body.blog, function (err, updatedBlog) {
+        if (err) {
+            console.log(err);
+        } else {
+            res.redirect("/blogs/" + req.params.id);
+        }
+    });
+});
 
-app.delete("/blogs/:id", function (req, res) {});
+app.delete("/blogs/:id", function (req, res) {
+    Blog.findByIdAndRemove(req.params.id, function (err) {
+        if (err) {
+            console.log(err);
+        } else {
+            res.redirect("/blogs");
+        }
+    });
+});
 
 app.listen(3000, function () {
     console.log("Server is running on port 3000");
