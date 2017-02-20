@@ -51,6 +51,7 @@ app.get("/blogs/new", function (req, res) {
 });
 
 app.post("/blogs", function (req, res) {
+    req.body.blog.body = req.sanitize(req.body.blog.body);
     Blog.create(req.body.blog, function (err, blog) {
         if (err) {
             console.log(err);
