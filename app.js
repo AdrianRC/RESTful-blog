@@ -6,7 +6,9 @@ var express = require("express"),
     expressSanitizer = require("express-sanitizer");
 
 //app config
-mongoose.connect("mongodb://localhost/restful_blog");
+var url = process.env.DATABASEURL || "mongodb://localhost/restful_blog";
+mongoose.connect(url);
+
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({
@@ -105,6 +107,8 @@ app.delete("/blogs/:id", function (req, res) {
     });
 });
 
-app.listen(3000, function () {
-    console.log("Server is running on port 3000");
+var port = process.env.PORT || 8080;
+
+app.listen(port, function () {
+    console.log("Server started.");
 });
